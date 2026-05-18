@@ -1,0 +1,17 @@
+# Build outputs
+android/PhonePad/app/build/
+android/PhonePad/build/
+android/PhonePad/.gradle/
+
+# Local machine config (SDK path vb. — kişisel)
+android/PhonePad/local.properties
+
+# IDE dosyaları
+.idea/
+android/PhonePad/.idea/
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+server/__pycache__/

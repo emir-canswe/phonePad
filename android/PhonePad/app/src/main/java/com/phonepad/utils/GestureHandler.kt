@@ -1,52 +1,69 @@
 package com.phonepad.utils
 
-import org.json.JSONObject
-import com.phonepad.network.WebSocketClient
+import com.phonepad.bluetooth.BluetoothHidManager
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.GlobalScope
 
-class GestureHandler(private val webSocketClient: WebSocketClient) {
+class GestureHandler(private val bluetoothManager: BluetoothHidManager) {
     
-    // Hassasiyet çarpanı varsayılan 1.5x
-    var sensitivity: Float = 1.5f
+    // Hassasiyet: 2.5x — daha hızlı fare hareketi
+    var sensitivity: Float = 2.5f
     
+    private var remainderX = 0f
+    private var remainderY = 0f
+
     fun sendMove(dx: Float, dy: Float) {
-        val payload = JSONObject().apply {
-            put("type", "move")
-            put("dx", dx * sensitivity)
-            put("dy", dy * sensitivity)
-        }
-        webSocketClient.sendAction(payload)
+        val totalX = (dx * sensitivity) + remainderX
+        val totalY = (dy * sensitivity) + remainderY
+        
+        val scaledDx = totalX.toInt()
+        val scaledDy = totalY.toInt()
+        
+        // Kalan ondalık değeri birik — hiçbir küçük hareket kaybolmasın
+        remainderX = totalX - scaledDx
+        remainderY = totalY - scaledDy
+
+        // Sıfır kontrolü yok → her küçük hareketi anında ilet
+        bluetoothManager.sendMouseMovement(dx = scaledDx, dy = scaledDy)
     }
 
     fun sendClick(button: String = "left") {
-        val payload = JSONObject().apply {
-            put("type", "click")
-            put("button", button)
-        }
-        webSocketClient.sendAction(payload)
+        val left = button == "left"
+        val right = button == "right"
+        bluetoothManager.sendMouseMovement(dx = 0, dy = 0, leftButton = left, rightButton = right)
+        bluetoothManager.sendMouseMovement(dx = 0, dy = 0, leftButton = false, rightButton = false)
     }
 
     fun sendDoubleClick() {
-        val payload = JSONObject().apply {
-            put("type", "double_click")
-            put("button", "left")
+        kotlinx.coroutines.GlobalScope.launch {
+            sendClick("left")
+            kotlinx.coroutines.delay(50)
+            sendClick("left")
         }
-        webSocketClient.sendAction(payload)
     }
 
     fun sendScroll(dy: Float) {
-        val payload = JSONObject().apply {
-            put("type", "scroll")
-            put("dy", dy * sensitivity)
+        val scrollVal = (dy / 10).toInt()
+        if (scrollVal != 0) {
+            bluetoothManager.sendMouseMovement(dx = 0, dy = 0, wheel = scrollVal)
         }
-        webSocketClient.sendAction(payload)
     }
     
     fun sendDrag(dx: Float, dy: Float) {
-        val payload = JSONObject().apply {
-            put("type", "drag")
-            put("dx", dx * sensitivity)
-            put("dy", dy * sensitivity)
-        }
-        webSocketClient.sendAction(payload)
+        val totalX = (dx * sensitivity) + remainderX
+        val totalY = (dy * sensitivity) + remainderY
+        
+        val scaledDx = totalX.toInt()
+        val scaledDy = totalY.toInt()
+        
+        remainderX = totalX - scaledDx
+        remainderY = totalY - scaledDy
+
+        bluetoothManager.sendMouseMovement(dx = scaledDx, dy = scaledDy, leftButton = true)
+    }
+    
+    fun releaseDrag() {
+        bluetoothManager.sendMouseMovement(dx = 0, dy = 0, leftButton = false)
     }
 }
