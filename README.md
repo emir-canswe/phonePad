@@ -1,8 +1,120 @@
-# PhonePad
+# PhonePad 🖱️
 
-**PhonePad**, Android telefonunuzu aynı Wi-Fi ağı üzerinden bilgisayarınız için hızlı ve pratik bir kablosuz touchpad'e dönüştüren açık kaynaklı bir projedir. Bilgisayarınızdan uzaktayken (film izlerken, sunum yaparken vb.) fareyi telefonunuz üzerinden yüksek hassasiyetle kontrol etmenizi sağlar.
+**PhonePad**, Android telefonunuzu **Bluetooth HID (Human Interface Device)** protokolü aracılığıyla bilgisayarınız için kablosuz bir fareye dönüştüren açık kaynaklı bir uygulamadır.
 
-![PhonePad Konsept](https://img.shields.io/badge/Android-Client-green.svg) ![PhonePad Sunucu](https://img.shields.io/badge/Python-Server-blue.svg)
+Sunucu gerekmez, Wi-Fi gerekmez. Telefonunuz kendini doğrudan bir Bluetooth fare olarak tanıtır — tıpkı marketten aldığınız kablosuz bir fare gibi.
+
+![Android](https://img.shields.io/badge/Android-API%2028+-green.svg)
+![Kotlin](https://img.shields.io/badge/Kotlin-Jetpack%20Compose-blue.svg)
+![Bluetooth](https://img.shields.io/badge/Bluetooth-HID%20Classic-purple.svg)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+
+---
+
+## ✨ Özellikler
+
+- 🔵 **Sürücüsüz Bluetooth HID** — Bilgisayara hiçbir yazılım kurmaya gerek yok
+- ⚡ **Sıfır Gecikme** — Ham pointer input ile Android'in iç filtresi bypass edildi
+- 🎯 **Yüksek Hassasiyet** — 2.5x çarpan + ondalık birikim ile smooth hareket
+- 🖱️ **Sol / Sağ Tık** — Dokunmatik alan üzerinden hem buton hem gesture
+- 🌑 **Koyu Tema** — Tam siyah arka plan, yeşil accent renkleri
+- 📡 **Otomatik Cihaz Keşfi** — Kayıtlı ve yeni cihazları listeler
+
+---
+
+## 📋 Gereksinimler
+
+| Gereksinim | Minimum |
+|---|---|
+| Android Sürümü | **Android 9 (API 28)** veya üzeri |
+| Bluetooth | **Bluetooth Classic** (BLE değil) |
+| Bilgisayar | Windows / macOS / Linux — herhangi biri |
+
+---
+
+## 📱 Kurulum
+
+### APK ile Doğrudan Kurulum (Kolay)
+1. [Releases](https://github.com/emir-canswe/phonePad/releases) sayfasından son APK'yı indirin
+2. Telefonunuzda **"Bilinmeyen kaynaklardan yükleme"** iznini verin
+3. APK'ya dokunup **Yükle** deyin
+
+### Android Studio ile Derleme
+1. `android/PhonePad` klasörünü Android Studio'da açın
+2. `gradle.properties` içinde `android.useAndroidX=true` olduğunu doğrulayın
+3. Yeşil **Run ▶️** butonuna basın ya da terminalde:
+   ```bash
+   ./gradlew assembleDebug
+   ```
+
+---
+
+## 🚀 Nasıl Kullanılır?
+
+### Bilgisayardan Bağlanma (Önerilen)
+1. Uygulamayı telefonunuzda açın
+2. **"Bilgisayardan Bağlan"** butonuna basın → telefonunuz 5 dakika görünür olur
+3. Windows: `Ayarlar → Bluetooth ve Cihazlar → Cihaz Ekle` → **PhonePad Mouse** seçin
+4. Eşleşme onayını her iki tarafta da kabul edin
+5. Bağlandı! 🎉 Dokunmatik ekran aktif olacak
+
+### Telefondan Bağlanma
+1. **"Ağ Ara (Cihaz Bul)"** butonuna basın
+2. Bilgisayarınızın Bluetooth ayarlarının açık olduğundan emin olun
+3. Listede bilgisayarınızın adını görünce üzerine dokunun
+
+---
+
+## 🎮 Kontroller
+
+| Jest | Eylem |
+|---|---|
+| Tek parmak sürükle | Fare hareketi |
+| Kısa dokunuş | Sol tık |
+| Uzun basış | Sağ tık |
+| Çift dokunuş | Çift tık |
+| **Sol Tık** butonu | Sol tık |
+| **Sağ Tık** butonu | Sağ tık |
+
+---
+
+## 📂 Proje Yapısı
+
+```text
+phonePad/
+├── android/
+│   └── PhonePad/                        # Android Studio Projesi
+│       └── app/src/main/java/com/phonepad/
+│           ├── MainActivity.kt           # İzin yönetimi, navigasyon
+│           ├── bluetooth/
+│           │   └── BluetoothHidManager.kt # HID profili, bağlantı yönetimi
+│           ├── ui/
+│           │   ├── ConnectScreen.kt      # Cihaz arama & bağlantı ekranı
+│           │   ├── TouchpadScreen.kt     # Dokunmatik alan & tık butonları
+│           │   └── SettingsScreen.kt     # Ayarlar
+│           └── utils/
+│               └── GestureHandler.kt    # Dokunma → HID raporu dönüşümü
+├── server/                              # (Eski Wi-Fi mimarisi — artık kullanılmıyor)
+└── README.md
+```
+
+---
+
+## 🔧 Teknik Detaylar
+
+- **Protokol:** Bluetooth Classic HID (BluetoothHidDevice API)
+- **HID Raporu:** 4 byte — `[butonlar, dx, dy, scroll]`
+- **Hassasiyet:** 2.5x çarpan + sub-pixel ondalık birikim
+- **Input Yöntemi:** `awaitPointerEventScope` (native, gecikme yok)
+- **Min SDK:** API 28 (Android 9)
+- **Dil:** Kotlin + Jetpack Compose
+
+---
+
+## 📄 Lisans
+
+MIT License — Dilediğiniz gibi kullanabilir, değiştirebilir ve dağıtabilirsiniz.
+
 
 ---
 
